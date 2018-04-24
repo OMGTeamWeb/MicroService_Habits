@@ -1,6 +1,6 @@
 module.exports = {
   // enabled logging for development
-  logging: true,
+  logging: false,
   seed: false,
   db: {
     //crear BD
