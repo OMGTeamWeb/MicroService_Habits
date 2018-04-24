@@ -17,11 +17,9 @@ exports.params = function(req, res, next, id) {
 exports.paramsbyUser = function(req, res, next, userId) {
   Habit.find({"userId": userId})
     .then(function(habit) {
-      console.log("HOLIs");
       if (!habit) {
-        next(new Error('There is no habit with that id'));
+        next(new Error('There is no habit with that UserId'));
       } else {
-        console.log(":O "+ habit);
         req.userId = habit;
         next();
       }
@@ -31,10 +29,26 @@ exports.paramsbyUser = function(req, res, next, userId) {
 };
 
 exports.getbyUser = function(req, res, next){
-  console.log("USERID "+ req.userId);
-  var habit = req.userId;
-  res.json(habit);
-}
+  console.log(req.params)
+  var userId = req.params.userId;
+  console.log("ACA: "+ userId);
+  if (!userId) {
+    res.status(400).send({ error: "missing user Id" });
+  }else{
+    //{"userId": userId}
+    Habit.find({"userId": userId})
+    .then((habits) => {
+      if(habits.length <= 0 ) {
+        res.status(404).send({ error: "User "+req.userId+" not found :(" });
+        return
+      }
+      res.json(habits);
+    })
+    .catch((err) =>{
+      next(err);
+    });
+  }
+};
 
 exports.get = function(req, res, next) {
   Habit.find()
@@ -78,6 +92,7 @@ exports.post = function(req, res, next) {
     .then(function(habit) {
       res.json(habit);
     }, function(err) {
+      res.status(500).send({ error: "Something goes wrong :(" });
       next(err);
     });
 };
